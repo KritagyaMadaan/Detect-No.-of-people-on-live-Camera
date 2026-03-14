@@ -1,0 +1,5 @@
+ultralytics
+opencv-python
+deep-sort-realtime
+numpy
+setuptools<70.0.0

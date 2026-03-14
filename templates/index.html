@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrowdSense AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <!-- Load FontAwesome and Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header common to most screens -->
+    <header class="top-nav" id="top-nav">
+        <div class="header-left">
+            <div class="logo-icon"><i class="fa-solid fa-users-viewfinder"></i></div>
+            <h1 class="header-title">CrowdSense AI</h1>
+        </div>
+        <div class="header-right">
+            <i class="fa-regular fa-bell icon-btn"></i>
+            <div class="profile-icon"><i class="fa-solid fa-user"></i></div>
+        </div>
+    </header>
+
+    <header class="top-nav compact-header" id="secondary-nav" style="display: none;">
+        <div class="header-left">
+            <i class="fa-solid fa-arrow-left icon-btn back-btn"></i>
+            <h1 class="header-title secondary-title">Title</h1>
+        </div>
+        <div class="header-right">
+            <i class="fa-regular fa-calendar icon-btn cal-btn" style="display: none;"></i>
+            <a href="#" class="save-btn" style="display: none;">Save</a>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- MONITOR TAB -->
+        <section id="tab-monitor" class="tab-pane active fade-in">
+            <div class="page-padding">
+                <div class="status-header">
+                    <h2>Main Entrance</h2>
+                    <p class="subtitle">Real-time occupancy monitoring active</p>
+                </div>
+                
+                <button id="toggle-camera-btn" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-video"></i> <span id="camera-btn-text">Start Camera</span>
+                </button>
+
+                <!-- LIVE VIEW WRAPPER (Hidden initially unless monitoring) -->
+                <div id="live-camera-wrapper" class="card fade-in" style="display: none; padding: 0; overflow: hidden; position: relative; border-radius: 12px; margin-top: 1.5rem;">
+                    <!-- We'll put an img tag here for the feed -->
+                    <img id="video-stream" src="" alt="Live Video Feed" style="width: 100%; display: block; filter: brightness(0.9);">
+                    
+                    <div class="ar-overlay">
+                        <div class="ar-glass-panel">
+                            <span class="ar-label">CURRENT COUNT</span>
+                            <span id="ar-big-count" class="ar-number">0</span>
+                            <div class="ar-stats">
+                                <span class="ar-stat green"><i class="fa-solid fa-arrow-trend-up"></i> +<span id="ar-entries">0</span></span>
+                                <span class="ar-stat blue"><i class="fa-solid fa-users"></i> Limit: <span id="ar-limit">50</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card occupancy-card mt-4">
+                    <h3 class="card-subtitle">CURRENT OCCUPANCY</h3>
+                    
+                    <div class="circular-progress">
+                        <svg viewBox="0 0 36 36" class="circular-chart blue">
+                          <path class="circle-bg"
+                            d="M18 2.0845
+                              a 15.9155 15.9155 0 0 1 0 31.831
+                              a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                          <path class="circle" id="occupancy-ring"
+                            stroke-dasharray="0, 100"
+                            d="M18 2.0845
+                              a 15.9155 15.9155 0 0 1 0 31.831
+                              a 15.9155 15.9155 0 0 1 0 -31.831"
+                          />
+                        </svg>
+                        <div class="progress-content">
+                            <span class="percentage" id="occupancy-percentage">0%</span>
+                            <span class="label">Capacity</span>
+                        </div>
+                    </div>
+                    
+                    <div class="metrics-row">
+                        <span><strong id="count-present" class="text-light">0</strong> present</span>
+                        <span><strong id="count-limit">50</strong> limit</span>
+                    </div>
+                </div>
+
+                <div class="card peak-card mt-4 mb-5">
+                    <h3 class="card-subtitle">TODAY'S PEAK</h3>
+                    <div class="peak-value">
+                        <span class="big-number" id="peak-today">0</span>
+                        <span class="label">Persons</span>
+                    </div>
+                    <div class="trend-badge positive">
+                        <i class="fa-solid fa-arrow-trend-up"></i> +12.4% vs yesterday
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- HISTORY TAB -->
+        <section id="tab-history" class="tab-pane">
+            <div class="search-bar-container page-padding pt-3">
+                <div class="search-input-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search sessions by date or location">
+                </div>
+            </div>
+            
+            <div class="history-list page-padding pb-5">
+                <div class="section-header mt-3">
+                    <span class="section-title">PAST SESSIONS</span>
+                    <span class="action-link">32 Total Sessions</span>
+                </div>
+                
+                <div id="history-cards">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SETTINGS TAB -->
+        <section id="tab-settings" class="tab-pane">
+            <div class="page-padding pt-4 pb-5">
+                <div class="section-header mt-0">
+                    <span class="section-title">THRESHOLDS & LIMITS</span>
+                </div>
+                
+                <div class="card settings-card">
+                    <div class="setting-item flex-row">
+                        <span class="setting-label">Occupancy Limit</span>
+                        <span class="badge blue">Target</span>
+                    </div>
+                    <div class="number-input-group mt-2 mb-4">
+                        <input type="number" id="limit-input" value="50">
+                        <div class="stepper-controls">
+                            <button class="step-btn" id="limit-up"><i class="fa-solid fa-plus"></i></button>
+                            <button class="step-btn" id="limit-down"><i class="fa-solid fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <p class="setting-note">Maximum number of persons allowed in the designated area.</p>
+                    
+                    <hr class="divider">
+                    
+                    <div class="setting-item flex-row mt-3">
+                        <span class="setting-label">Detection Sensitivity</span>
+                        <span class="badge ghost-blue" id="sensitivity-label">High (85%)</span>
+                    </div>
+                    
+                    <div class="slider-container mt-3">
+                        <input type="range" min="1" max="100" value="85" class="slider" id="sensitivity-slider">
+                        <div class="slider-labels">
+                            <span>LOW</span>
+                            <span>MEDIUM</span>
+                            <span>PRECISE</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-header mt-4">
+                    <span class="section-title">NOTIFICATIONS & PRIVACY</span>
+                </div>
+                
+                <div class="card settings-card mb-5">
+                    <div class="toggle-row">
+                        <div class="toggle-icon blue-bg"><i class="fa-regular fa-bell"></i></div>
+                        <div class="toggle-info">
+                            <h4>Occupancy Alerts</h4>
+                            <p>Push notifications when limit is reached</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider-toggle round"></span>
+                        </label>
+                    </div>
+                    
+                    <hr class="divider border-light">
+                    
+                    <div class="toggle-row pt-3">
+                        <div class="toggle-icon dark-blue-bg"><i class="fa-solid fa-database"></i></div>
+                        <div class="toggle-info">
+                            <h4>Store Data Locally</h4>
+                            <p>Keep history logs on this device only</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider-toggle round"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="info-alert card">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <p>Adjusting sensitivity may affect battery life on mobile detection units. We recommend "Medium" for most commercial indoor environments.</p>
+                </div>
+                
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-target="monitor">
+            <i class="fa-solid fa-border-all"></i>
+            <span>MONITOR</span>
+        </a>
+        <a href="#" class="nav-item" data-target="history">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>HISTORY</span>
+        </a>
+        <a href="#" class="nav-item" data-target="settings">
+            <i class="fa-solid fa-gear"></i>
+            <span>SETTINGS</span>
+        </a>
+        <a href="#" class="nav-item" data-target="account">
+            <i class="fa-regular fa-user"></i>
+            <span>ACCOUNT</span>
+        </a>
+    </nav>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
