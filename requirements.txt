@@ -1,5 +1,12 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+
+cvzone
+deep_sort_realtime
+Flask
+numpy==1.26.4
+opencv-python-headless
+pandas
 ultralytics
-opencv-python
-deep-sort-realtime
-numpy
-setuptools<70.0.0
+gunicorn
