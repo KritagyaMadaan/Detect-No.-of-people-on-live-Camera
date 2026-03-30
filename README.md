@@ -70,6 +70,7 @@ To use the custom people detection class, follow these steps:
 4. To detect multiple people going with each other import \`ManyPeople`\ class
 
 ## Contributing
+Contributor: Atul Anand
 
 Contributions to this real-time people counting system are welcome. If you have any ideas, bug fixes, or improvements, please open an issue or submit a pull request.
 
